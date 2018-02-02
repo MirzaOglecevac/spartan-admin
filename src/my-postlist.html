@@ -1,0 +1,319 @@
+
+<!-- Import polymer element and shared styles of all pages-->
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-postlist">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+
+      .card {
+        overflow: auto;
+      }
+
+      .buttons  {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        border-radius: 5px;
+      }
+
+      #release, #add {
+        width: 70px;
+        border: none;
+        padding: 10px;
+        background-color:#e51227;
+        color: #fff;
+        opacity: 0.9;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+
+      #release:hover, #add:hover {
+        opacity: 1;
+        cursor: pointer;
+      }
+
+      #add {
+        float: right;
+      }
+
+      .listDiv {
+        width: 45%;
+        float: left;
+        min-height: 500px;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+
+      .listDiv #listItems {
+        width: 100%;
+        min-height: 500px;
+        max-height: 500px;
+        overflow:auto;
+      }
+
+      .listDiv .item {
+        padding: 5px 10px;
+        color: #000;
+        font-weight: bold;
+      }
+
+      #listDivHeading {
+        color: #888;
+        border-bottom: 0.5px solid #999;
+        width: 90%;
+        margin-left: 3%;
+      }
+
+      .phoneDiv {
+        width: 34%;
+        background-color: blue;
+        padding: 4% 6%;
+        float: right;
+        min-height: 500px;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+
+      #one, #two, #three {
+        width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+
+      .phoneDiv #one {
+        background-color: #7c3313;
+        height: 25px;
+      }
+
+      .phoneDiv #two {
+        background-color: #661646;
+        height: 65px;
+      }
+
+      .phoneDiv #three {
+        background-color: #e2dcd9;
+        height: 410px;
+      }
+
+      .phoneDiv span {
+        display: inline-block;
+        width: 14%;
+        height: 20px;
+        background-color: gray;
+        margin-right: 15px;
+      }
+
+      .phoneDiv .first {
+        position: relative;
+        left: 10%;
+        top: 15%;
+      }
+
+      .phoneDiv .second {
+        position: relative;
+        left: 10%;
+        top: 55%;
+      }
+
+      .phoneDiv .third {
+        position: relative;
+        left: 10%;
+        top: 75%;
+      }
+
+      .phoneDiv .circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #3185b2;
+        position: relative;
+        left: 85%;
+        top: 72%;
+      }
+
+	   paper-card img {
+		width: 100%;
+		height: 250px;
+	  }
+
+	  paper-card {
+
+		background-color: #5997f9 !important;
+	  }
+
+	  paper-card .blogHeader {
+		font-weight: bold;
+		text-decoration: underline;
+		font-size: 20px;
+		text-align: center;
+	  }
+
+
+
+	  .blogContent {
+
+		max-height: 290px;
+		overflow: auto;
+	  }
+
+
+	 #left {
+		width: 35%;
+		margin: 1%;
+		padding: 2%;
+		background-color: #5997f9;
+		color: #fff;
+		float: left;
+	 }
+
+	 #right {
+		width:55%;
+		margin: 1% 0;
+		padding: 10px;
+		float: right;
+		background-color: lightgreen;
+		height: 600px;
+		color: #000;
+	 }
+
+	 #left p {
+		padding: 5px;
+		width: 100%;
+		font-weight: bold;
+		cursor: pointer;
+	 }
+
+	 #left p:hover {
+		color: black;
+	 }
+
+	 img {
+		width: 80%;
+		position: relative;
+		left: 10%;
+		height: 180px;
+	 }
+
+    </style>
+
+
+
+	<iron-ajax
+              auto
+              url="http://api.blog.diamondappgroup.com/blog/posts"
+              handle-as="json"
+              last-response="{{ajaxResponse}}">
+       </iron-ajax>
+
+	<app-indexeddb-mirror
+		key="posts"
+		data="{{ajaxResponse.data}}"
+		persisted-data="{{persistedData}}">
+	</app-indexeddb-mirror>
+
+
+    <div class="card">
+
+		<div id="left">
+
+		<template is="dom-repeat" items={{persistedData}} as="data">
+
+			<p id="{{index}}" on-click="showPost"  class="blogHeader">{{data.name}}</p>
+
+		 </template>
+
+		</div>
+
+		<div id="right">
+
+
+			<img src$="{{image}}" class="blogImage" />
+			<p class="blogHeader" style="font-weight: bold; font-size: 20px; text-align: center;">{{postname}}</p>
+			<p class="blogContent">{{body}}</p>
+			<p class="blogDate"> {{blogDate}}</p>
+
+
+		</div>
+
+	</div>
+  </template>
+
+  <script>
+    class MyPostlist extends Polymer.Element {
+      static get is() { return 'my-postlist'; }
+
+	   static get properties() {
+		  return {
+
+			postname: {
+			  type: String,
+			  value: "Test new blog post"
+			},
+			body: {
+			  type: String,
+			  value: "<p>Creating blog post for testing pagination</p>"
+			},
+			image: {
+			  type: String,
+			  value: "https://greatist.com/sites/default/files/gym-floor-guide.jpg"
+			},
+			blogDate: {
+			  type: String,
+			  value: "2017-11-17 10:52:20"
+			},
+			prop1: {
+			  type: String,
+			  value: "bar"
+			},
+
+			postImage: {
+			  type: String,
+			  value: ""
+			},
+			persistedData: {
+				type: Array
+			},
+
+			defaultImage: {
+			  type: String,
+			  value: "profile.jpg"
+			}
+		  }
+    }
+
+
+
+    json(obj) {
+      return JSON.stringify(obj, null, 2);
+    }
+
+
+	showPost(event){
+	/*
+		console.log(this.persistedData[event.target.id].name);
+		console.log(this.persistedData[event.target.id].body);
+		console.log(this.persistedData[event.target.id].images[0].path);
+		*/
+
+		this.postname=this.persistedData[event.target.id].name;
+		this.image=this.persistedData[event.target.id].images[0].path;
+		this.body=this.persistedData[event.target.id].body;
+		this.blogDate=this.persistedData[event.target.id].date;
+	}
+
+
+
+
+    }
+
+    window.customElements.define(MyPostlist.is, MyPostlist);
+  </script>
+</dom-module>

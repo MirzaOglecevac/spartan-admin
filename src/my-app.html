@@ -1,0 +1,580 @@
+<!--
+@license
+Copyright (c) 2016 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="my-icons.html">
+
+<!-- import page only when it needs + configuration in polymer.json  -->
+<link rel="lazy-import" href="my-posts.html">
+<link rel="lazy-import" href="my-postlist.html">
+<link rel="lazy-import" href="my-faq.html">
+<link rel="lazy-import" href="my-suggestions.html">
+<link rel="lazy-import" href="my-view404.html">
+
+
+
+<dom-module id="my-app">
+  <template>
+    <style>
+      :host {
+        --app-primary-color: #4285f4;
+        --app-secondary-color: black;
+
+        display: block;
+      }
+
+      app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
+
+      }
+
+	  /* Header over full screen - doesnt work for IE and Firefox*/
+
+  app-header {
+      top: -5px;
+      left: 0;
+      width: 100%;
+	    height: 60px;
+      background-color: #222;
+      color: #fff;
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+    }
+
+	/* Header over full screen - works for all browsers*/
+	app-header-layout {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      color: #111;
+
+    }
+
+        iron-pages {
+            position:relative;
+            bottom: 5%;
+            left: 25%;
+            width: 70%;
+          }
+
+      #drawer  {
+        width: 25%;
+        position:fixed;
+		background-color: #eee;
+      }
+
+
+      .drawer-list {
+        margin: 0px;
+      }
+
+      .drawer-list {
+        width: 100%;
+      }
+
+      
+
+      #backLink {
+        border-bottom: 1px solid #ccc;
+      }
+
+	  /* Hover effect for menu items*/
+	  .drawer-list a:hover {
+		background-color: #588fe8;
+		color: #fff;
+	  }
+
+
+
+	  /*Text decoration of menu item when its pressed*/
+      .drawer-list a.iron-selected {
+        color: #333;
+        color: #e51227;
+      }
+
+      #addPost {
+       color: #111;
+       width: 90%;
+       padding: 5% 5% !important;
+      }
+
+      .menuItems{
+       width: 90%;
+       padding: 2% 5% !important;
+       color: #111 !important;
+       opacity: 0.9;
+       border-bottom: 1px solid rgba(50,50,50, 0.1);
+       margin: 0;
+	   background-color: #eee;
+      }
+
+      .blogDate {
+       width: 96%;
+       padding: 0 2% !important;
+       color: #333 !important;
+       opacity: 0.7;
+       font-size: 11px;
+      }
+
+      .menuItems:hover{
+       background-color: #ccc;
+       cursor: pointer;
+      }
+
+      #data {
+       width: 70%;
+       min-width: 500px;
+       min-height: 450px;
+       position: relative;
+       left: 25%;
+       top: 5%;
+      }
+
+      .imageInput {
+		   display: block;
+		   width: 85%;
+		   height: 300px;
+		   margin: 10px auto;
+      }
+
+
+      #bigImage {
+		width: 90%;
+		height: 350px;
+		position: relative; 
+		left: 5%;
+		cursor: pointer;
+      }
+
+
+      .textInput {
+       width: 85%;
+       margin: 10px auto;
+      }
+
+      #buttons {
+       width: 85%;
+       margin: 10px auto;
+      }
+
+      #buttons button {
+       width: 70px;
+       border: none;
+       padding: 10px;
+       text-transform: uppercase;
+       color: #fff;
+       float:right;
+       border-radius: 2px;
+	   margin-bottom: 10px;
+      }
+
+      #edit {
+       background-color: #2ab1d6;
+       float:right;
+       display: none;
+      }
+
+      #addImage {
+       background-color: #2ab1d6;
+       float:right;
+       display: block;
+      }
+
+      #delete {
+       background-color: red;
+       opacity: 0.8;
+       margin-right: 15px;
+	   margin-bottom: 20px;
+       display: none;
+      }
+
+      #buttons button:hover {
+       cursor: pointer;
+      }
+	  
+	 #fileInput {
+		display: none;
+	 }
+
+
+    </style>
+
+    <app-location
+        route="{{route}}"
+        url-space-regex="^[[rootPath]]">
+    </app-location>
+
+    <app-route
+        route="{{route}}"
+        pattern="[[rootPath]]:page"
+        data="{{routeData}}"
+        tail="{{subroute}}">
+    </app-route>
+
+    <app-drawer-layout fullbleed >
+
+      <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]" >
+
+        <iron-ajax
+                    auto
+                    url="http://api.blog.diamondappgroup.com/blog/posts"
+                    handle-as="json"
+                    last-response="{{ajaxResponse}}">
+        </iron-ajax>
+
+        <app-indexeddb-mirror
+          key="posts"
+          data="{{ajaxResponse.data}}"
+          persisted-data="{{persistedData}}">
+        </app-indexeddb-mirror>
+
+        <p id="addPost" class="menuItems" on-click="addPost">Add new post</p>
+
+        <template is="dom-repeat" items={{persistedData}} as="data">
+			
+			
+             <p id="{{index}}" database-id="{{data.id}}" class="menuItems" on-click="showPost" >{{data.name}}
+                <br/><span class="blogDate">{{formatDate(data.date)}}</span>
+             </p>
+			
+
+         </template>
+
+      </app-drawer>
+
+
+      <app-header-layout has-scrolling-region>
+
+        <app-header slot="header" condenses fixed effects="waterfall">
+          <app-toolbar>
+
+            <div>Admin</div>
+
+          </app-toolbar>
+        </app-header>
+
+        <div id="data">
+ 
+           <iron-form>
+             <form method="POST" action="http://api.blog.diamondappgroup.com/blog">
+			 
+			 <input id="fileInput" type="file" accept="image/*" on-change="loadFile" />
+			 <img id="bigImage" on-click="openDialog" />
+		  
+                <paper-input id="postNameInput" name="name" class="textInput" char-counter maxlength="50" always-float-label label="Title" value="{{postname}}"></paper-input>
+                <paper-textarea id="postBodyInput" name="blog" class="textInput" always-float-label label="Blog text" value="{{body}}"></paper-textarea>
+                <div id="buttons">
+                  <button id="addImage" on-click="createPost"> Add</button>
+                  <button id="edit" on-click="updatePost"> Edit </button>
+                  <button id="delete" on-click="deletePost"> Delete </button>
+                </div>
+            </form>
+          </iron-form> 
+
+
+
+        </div>
+
+
+      </app-header-layout>
+    </app-drawer-layout>
+  </template>
+  
+
+
+  <script>
+    class MyApp extends Polymer.Element {
+      static get is() { return 'my-app'; }
+
+
+      static get properties() {
+        return {
+          page: {
+            type: String,
+            reflectToAttribute: true,
+            observer: '_pageChanged',
+          },
+          postname: {
+    		type: String,
+    		value: "",
+            observer: '_stripPostname'
+    		},
+
+    		body: {
+    			type: String,
+    			value: "",
+                observer: '_stripBody'
+    		},
+
+ 
+          idnumber: {
+    		type: String,
+
+    	 },
+				
+		databaseId: {
+    	    type: Number
+
+    	},
+
+    			
+    	blogDate: {
+    	   type: String,
+    	   value: ""
+    	},
+
+
+    	postImage: {
+    	     type: String,
+    		value: ""
+    	},
+
+
+    	persistedData: {
+    		type: Array
+    	},
+
+          routeData: Object,
+          subroute: String,
+          rootPath: String,
+        };
+      }
+
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.page)',
+        ];
+      }
+
+      _routePageChanged(page) {
+
+        this.page = page || 'posts';
+
+
+        if (!this.$.drawer.persistent) {
+          this.$.drawer.close();
+
+        }
+      }
+	  
+	  ready(){
+		super.ready()
+		this.$.bigImage.src="placeholder.jpg";
+	  }
+
+      json(obj) {
+        return JSON.stringify(obj, null, 2);
+		
+      }
+
+     
+      _stripPostname(){
+        var data = this.postname;
+        data.replace(/<[^>]*>/g, '')
+        this.postname=data;
+      }
+
+      _stripBody(){
+        var data = this.body;
+        data = data.replace(/<[^>]*>/g, '');
+        this.body=data;
+      }
+	  
+	  formatDate(date){
+		
+		var year = date.substring(0,4);
+		var m = parseInt(date.substring(5,7));
+		var day = date.substring(8,10);
+		var month;
+		
+		switch(m) {
+			case 1: month = "Jan"; break;
+			case 2: month = "Feb"; break;
+			case 3: month = "Mar"; break;
+			case 4: month = "Apr"; break;
+			case 5: month = "May"; break;
+			case 6: month = "Jun"; break;
+			case 7: month = "Jul"; break;
+			case 8: month = "Aug"; break;
+			case 9: month = "Sep"; break;
+			case 10: month = "Oct"; break;
+			case 11: month = "Nov"; break;
+			case 12: month = "Dec"; break;
+			default: month = "Unknown";
+		}
+		
+		return day + " " + month + " " + year;
+		
+	  }
+	  
+	  
+	  
+	  openDialog(){
+		this.$.fileInput.click();
+	  }
+	  
+	  loadFile(event) {
+		this.$.bigImage.src = URL.createObjectURL(event.target.files[0]);
+	  }; 
+	  
+	  
+
+      addPost(){
+
+        this.postname="";
+        this.$.bigImage.src="placeholder.jpg";
+        this.body="";
+
+        this.$.edit.style="display: none;";
+        this.$.delete.style="display: none;";
+        this.$.addImage.style="display: block;";
+
+      }
+
+    
+	showPost(event){			 
+      this.idnumber = parseInt(event.target.id);	  
+	  this.databaseId = event.model.data.id;
+
+      this.postname=this.persistedData[event.target.id].name;
+      this.body = this.persistedData[event.target.id].body;
+      this.blogDate = this.persistedData[event.target.id].date;
+	  if(this.persistedData[event.target.id].images[0] != undefined){
+		this.$.bigImage.src = this.persistedData[event.target.id].images[0].path;
+	  }else {
+		this.$.bigImage.src = "placeholder.jpg";
+	  }
+
+      this.$.addImage.style="display: none;";
+      this.$.edit.style="display: block;";
+      this.$.delete.style="display: block;";
+	  
+	  
+	   
+    }
+	
+	
+    deletePost(){
+
+        var id= this.databaseId;
+        var url ="http://api.blog.diamondappgroup.com/blog/" + id;
+        var xhr = new XMLHttpRequest();
+
+        xhr.open("DELETE", url, false);
+        xhr.setRequestHeader('Authorization', 'Bearer 531e591f96973c04b7b2af150d5d316d447c37f7');
+        xhr.send();
+
+        console.log(xhr.status);
+        console.log(xhr.statusText);
+        console.log(xhr.response);
+    }
+
+    createPost(){
+
+        var url ="http://api.blog.diamondappgroup.com/blog";
+
+        var name = this.postname;
+        var body = this.body;
+		
+		var image = this.$.bigImage;
+		console.log(image);
+
+        var xhr = new XMLHttpRequest();
+        var object = 
+				{
+					name:  name,
+					body: "<p>" + body + "</p>", 
+					tags: [{name: "tags"}], 
+					images: "image" //[{path: "http://static3.businessinsider.com/image/5682baa8c08a8081028b580c-506-253/14-ways-i-trick-myself-into-going-to-the-gym.jpg", description: "imagee"}]
+				};
+		var data = JSON.stringify(object);
+     
+        xhr.open("POST", url, false);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Authorization', 'Bearer 531e591f96973c04b7b2af150d5d316d447c37f7');
+        xhr.send(data);
+
+        console.log(xhr.status);
+        console.log(xhr.statusText);
+        console.log(xhr.response);
+    }
+
+
+    updatePost(){
+
+        var url ="http://api.blog.diamondappgroup.com/blog/" + this.databaseId;
+
+       var name = this.postname;
+        var body = this.body;
+		
+		var image = this.$.bigImage;
+		console.log(image);
+
+        var xhr = new XMLHttpRequest();
+        var object = 
+				{
+					name:  name,
+					body: "<p>" + body + "</p>", 
+					tags: [{name: "tags"}], 
+					images: "image" //[{path: "http://static3.businessinsider.com/image/5682baa8c08a8081028b580c-506-253/14-ways-i-trick-myself-into-going-to-the-gym.jpg", description: "imagee"}]
+				};
+		var data = JSON.stringify(object);
+
+        xhr.open("PUT", url, false);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.setRequestHeader('Authorization', 'Bearer 531e591f96973c04b7b2af150d5d316d447c37f7');
+        xhr.send(data);
+
+        console.log(xhr.status);
+        console.log(xhr.statusText);
+        console.log(xhr.response);
+    }
+
+
+
+
+      _pageChanged(page) {
+        // function for loading pages after changing of the route
+        var resolvedPageUrl = this.resolveUrl('my-' + page + '.html');
+        Polymer.importHref(
+            resolvedPageUrl,
+            null,
+            this._showPage404.bind(this),
+            true);
+      }
+
+
+      _showPage404() {
+        this.page = 'view404';
+      }
+    }
+
+    window.customElements.define(MyApp.is, MyApp);
+  </script>
+</dom-module>

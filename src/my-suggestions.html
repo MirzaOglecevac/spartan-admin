@@ -1,0 +1,153 @@
+
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="shared-styles.html">
+
+<dom-module id="my-suggestions">
+  <template>
+    <style include="shared-styles">
+      :host {
+        display: block;
+
+        padding: 10px;
+      }
+	  
+	  
+	   paper-card img {
+		width: 100%;
+		height: 250px;
+	  }
+	  
+	  paper-card {
+
+		background-color: #5997f9 !important;
+	  }
+	  
+	  paper-card .blogHeader {
+		font-weight: bold;
+		text-decoration: underline;
+		font-size: 20px;
+		text-align: center;
+	  }
+	  
+	  #space {
+		width: 100%;
+		height: 40px;
+		background-color: white !important;
+	  }
+	  
+	  .blogContent {
+	  
+		max-height: 290px;
+		overflow: auto;
+	  }
+    </style>
+
+   <iron-ajax
+              auto
+              url="http://api.blog.diamondappgroup.com/blog/suggestions"
+              handle-as="json"
+              last-response="{{ajaxResponse}}">
+       </iron-ajax>
+	   
+	
+	
+	
+    <div class="card">
+	
+
+	
+		<template is="dom-repeat" items={{ajaxResponse.data}} as="data">
+		<paper-card>
+		  <div class="card-content">
+		  
+			<template is="dom-repeat" items={{data.images}} as="image">
+				
+				<!-- <template is="dom-if" if="{{isEmpty(image.path)}}">
+				
+					<img  src="{{image.path}}" /> 
+				
+				</template> -->
+				
+				<img  src="{{image.path}}" /> 
+				
+			</template>
+			
+			
+			<div class="blogHeader">{{data.name}}</div>
+			<p class="blogContent"> {{data.body}}</p>
+			<p class="blogDate"> DATE POSTED: {{data.date}}</p>
+			
+			
+			
+		  </div>
+		  
+
+		</paper-card>
+		
+		<div id="space"></div>
+		
+		 </template>
+		 
+		 
+		 
+
+    </div>
+
+
+  </template>
+
+  <script>
+    class MySuggestions extends Polymer.Element {
+      static get is() { return 'my-suggestions'; }
+	  
+	  
+	   static get properties() {
+		  return {
+			prop1: {
+			  type: String,
+			  value: "bar"
+			},
+			
+			postImage: {
+			  type: String,
+			  value: ""
+			},
+			
+			defaultImage: {
+			  type: String,
+			  value: "profile.jpg"
+			}
+		  }
+    }
+
+    json(obj) {
+      return JSON.stringify(obj, null, 2);
+    }
+	
+	
+	showObject(){
+		console.log(this.postImage);
+	}
+	
+	isEmpty(path){
+		
+		var len = path.length;
+		console.log("Length: " + len);
+		console.log(this.defaultImage);
+		
+		if(len < 10){
+			console.log("Empty path");
+			path = this.defaultImage;
+			return path;
+		}else {
+			console.log("not empty path");
+			return path;
+		}
+	}
+    }
+
+    window.customElements.define(MySuggestions.is, MySuggestions);
+  </script>
+</dom-module>

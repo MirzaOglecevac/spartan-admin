@@ -1,4 +1,6 @@
 
+<!-- Drugi komentar -->
+
 <!-- Import polymer element and shared styles of all pages-->
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
@@ -139,88 +141,88 @@
         left: 85%;
         top: 72%;
       }
-	  
+
 	   paper-card img {
 		width: 100%;
 		height: 250px;
 	  }
-	  
+
 	  paper-card {
 
 		background-color: #5997f9 !important;
 	  }
-	  
+
 	  paper-card .blogHeader {
 		font-weight: bold;
 		text-decoration: underline;
 		font-size: 20px;
 		text-align: center;
 	  }
-	  
+
 	  #space {
 		width: 100%;
 		height: 40px;
 		background-color: white !important;
 	  }
-	  
+
 	  .blogContent {
-	  
+
 		max-height: 290px;
 		overflow: auto;
 	  }
-	 
+
 
     </style>
-	
-	
-	
+
+
+
 	<iron-ajax
               auto
               url="http://api.blog.diamondappgroup.com/blog/posts"
               handle-as="json"
               last-response="{{ajaxResponse}}">
        </iron-ajax>
-	   
-	
-	
-	
+
+
+
+
     <div class="card">
-	
+
 		<template is="dom-repeat" items={{ajaxResponse.data}} as="data">
 		<paper-card>
 		  <div class="card-content">
-		  
+
 			<template is="dom-repeat" items={{data.images}} as="image">
-				
+
 				<!-- <template is="dom-if" if="{{isEmpty(image.path)}}">
-				
-					<img  src="{{image.path}}" /> 
-				
+
+					<img  src="{{image.path}}" />
+
 				</template> -->
-				
-				<img  src="{{image.path}}" /> 
-				
+
+				<img  src="{{image.path}}" />
+
 			</template>
-			
-			
+
+
 			<div class="blogHeader">{{data.name}}</div>
 			<p class="blogContent"> {{data.body}}</p>
 			<p class="blogDate"> DATE POSTED: {{data.date}}</p>
-			
-			
-			
+
+
+
 		  </div>
-		  
+
 
 		</paper-card>
-		
+
 		<div id="space"></div>
-		
+
 		 </template>
-	
-		 
-		 
-		 
+
+
+
+
 
     </div>
 
@@ -230,37 +232,37 @@
   <script>
     class MyPosts extends Polymer.Element {
       static get is() { return 'my-posts'; }
-	  
+
 	   static get properties() {
 		  return {
 			prop1: {
 			  type: String,
 			  value: "bar"
 			},
-			
+
 			postImage: {
 			  type: String,
 			  value: ""
 			},
-			
+
 			defaultImage: {
 			  type: String,
 			  value: "profile.jpg"
 			}
 		  }
     }
-	
-	
+
+
     json(obj) {
       return JSON.stringify(obj, null, 2);
     }
-	
-	
+
+
 	showObject(){
 		console.log(this.postImage);
 	}
-	
-	
+
+
 
 
     }
